@@ -25,6 +25,7 @@ if TYPE_CHECKING:
         Outfits,
         SalesArgument,
         SkillEntry,
+        WeaponProficiency,
     )
 
 
@@ -225,6 +226,7 @@ class AuctionDetailsBuilder:
         self._bestiary_progress = None
         self._bosstiary_progress = None
         self._revealed_gems = []
+        self._weapon_proficiencies = []
 
     def hit_points(self, hit_points: int) -> Self:
         self._hit_points = hit_points
@@ -393,6 +395,10 @@ class AuctionDetailsBuilder:
         self._completed_quest_lines = completed_quest_lines
         return self
 
+    def add_weapon_proficiency(self, weapon_proficiency: WeaponProficiency) -> Self:
+        self._weapon_proficiencies.append(weapon_proficiency)
+        return self
+
     def titles(self, titles: list[str]) -> Self:
         self._titles = titles
         return self
@@ -461,4 +467,5 @@ class AuctionDetailsBuilder:
             bestiary_progress=self._bestiary_progress,
             bosstiary_progress=self._bosstiary_progress,
             revealed_gems=self._revealed_gems,
+            weapon_proficiencies=self._weapon_proficiencies,
         )

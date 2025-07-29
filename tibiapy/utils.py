@@ -69,7 +69,7 @@ def convert_line_breaks(element: bs4.Tag) -> None:
         br.replace_with("\n")
 
 
-def get_rows(table_tag: bs4.Tag) -> bs4.Resultset[bs4.Tag]:
+def get_rows(table_tag: bs4.Tag | None) -> bs4.Resultset[bs4.Tag]:
     """Get all the row tags inside the container.
 
     A very simple shortcut function used for better code semantics.
@@ -163,6 +163,12 @@ def parse_integer(number: str, default: Optional[int] = 0) -> int:
         return int(number)
     except ValueError:
         return default
+
+
+def parse_has_weapon_mastery(href: str) -> bool:
+    parts = href.split("/")
+
+    return 'icon_yes.png' in parts
 
 
 class LinkInfo(TypedDict):

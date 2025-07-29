@@ -46,6 +46,7 @@ from tibiapy.models import (
     Outfits,
     SalesArgument,
     SkillEntry,
+    WeaponProficiency,
 )
 from tibiapy.models.bazaar import DisplayImage, RevealedGem
 from tibiapy.utils import (
@@ -58,6 +59,7 @@ from tibiapy.utils import (
     parse_tibia_datetime,
     parse_tibiacom_content,
     try_enum,
+    parse_has_weapon_mastery,
 )
 
 CSS_CLASS_ICON = "div.CVIcon"
@@ -268,6 +270,9 @@ class AuctionParser:
         if "RevealedGems" in details_tables:
             cls._parse_revealed_gems_table(builder, details_tables["RevealedGems"])
 
+        if "Proficiencies" in details_tables:
+            cls._parse_weapon_proficiencies_table(builder, details_tables["Proficiencies"])
+
         auction.details = builder.build()
         return auction
 
@@ -362,7 +367,7 @@ class AuctionParser:
 
         """
         details_tables = parsed_content.select("div.CharacterDetailsBlock")
-        return {table["id"]: table for table in details_tables}
+        return {table.get("id"): table for table in details_tables}
 
     @classmethod
     def _parse_data_table(cls, table: bs4.Tag) -> dict[str, str]:
@@ -755,6 +760,35 @@ class AuctionParser:
             builder.add_revealed_gem(RevealedGem(
                 gem_type=gem_type,
                 mods=effects,
+            ))
+
+    @classmethod
+    def _parse_weapon_proficiencies_table(cls, builder: AuctionDetailsBuilder, table: bs4.Tag) -> None:
+        table_content = table.select_one("table.TableContent")
+        _, *rows = get_rows(table_content)
+        for row in rows:
+            cells = row.find_all("td")
+            cell_data = [cell.get_text(strip=True) for cell in cells]
+
+            # No unique classes or tags used, so raw td has to be parsed
+
+            weapon_name = cell_data[0]
+            # Weapon level represented as current_level / max_level,
+            # only the first one matters
+            level = int(cell_data[1].split("/")[0])
+
+            total_progress = int(cell_data[2])
+            
+            # Mastery represented as x or checkmark icon
+            # must be parsed into a correct bool
+            mastery_icon = row.select_one("img").get("src")
+            mastery = parse_has_weapon_mastery(mastery_icon)
+
+            builder.add_weapon_proficiency(WeaponProficiency(
+                weapon_name=weapon_name,
+                level=level,
+                total_progress=total_progress,
+                mastery=mastery,
             ))
 
     @classmethod

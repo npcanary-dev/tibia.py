@@ -42,6 +42,7 @@ __all__ = (
     "RevealedGem",
     "SalesArgument",
     "SkillEntry",
+    "WeaponProficiency",
 )
 
 from tibiapy.urls import get_auction_url, get_bazaar_url, get_character_url
@@ -381,6 +382,19 @@ class RevealedGem(BaseModel):
     """The mods or effects the gem has."""
 
 
+class WeaponProficiency(BaseModel):
+    """Represents the character's weapon proficiency"""
+
+    weapon_name: str
+    """The name of the weapon"""
+    level: int
+    """The proficiency level attained"""
+    total_progress: int
+    """The total proficiency progress attained"""
+    mastery: bool
+    """Whether the weapon is mastered or not"""
+
+
 class AuctionDetails(BaseModel):
     """The details of an auction."""
 
@@ -476,6 +490,8 @@ class AuctionDetails(BaseModel):
     """The bosstiary progress of the character."""
     revealed_gems: list[RevealedGem]
     """The gems that have been revealed by the character."""
+    weapon_proficiencies: list[WeaponProficiency]
+    """The weapon proficiencies that have been attained by the character."""
 
     @property
     def completed_bestiary_entries(self) -> list[BestiaryEntry]:
